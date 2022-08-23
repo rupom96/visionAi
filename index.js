@@ -5,9 +5,15 @@ const bodyParser = require('body-parser');
 //qr
 const Jimp = require("jimp");
 const qrCode = require('qrcode-reader');
+
+const { MultiFormatReader, BarcodeFormat, DecodeHintType, RGBLuminanceSource, BinaryBitmap, HybridBinarizer } = require('@zxing/library');
+const jpeg = require('jpeg-js');
+
 const javascriptBarcodeReader = require('javascript-barcode-reader');
 const Quagga = require('quagga').default;
+
 var fs = require('fs');
+
 var path = require('path');
 const { Storage } = require('@google-cloud/storage');
 var stream = require('stream');
@@ -219,49 +225,110 @@ app.post('/vision', (req, res) => {
         }
         //bar reader........................
         else if (resultNew?.localizedObjectAnnotations[0]?.name == '1D barcode') {
-            const buffer = Buffer.from(path_img, "base64");
-            fs.writeFileSync("qrtemp.jpg", buffer);
-            var filePath = 'qrtemp.jpg';
+            // library for bar code reader named ZXING(same code diye qr code o read hoy lol)
+            try {
+                const jpegData = fs.readFileSync('qrtemp.jpg');
+                const rawImageData = jpeg.decode(jpegData);
 
-            javascriptBarcodeReader({
-                /* Image file Path || {data: Uint8ClampedArray, width, height} || HTML5 Canvas ImageData */
-                image: filePath,
-                barcode: 'code-39',
-                barcodeType: 'industrial',
-                options: {
-                    useAdaptiveThreshold: true, // for images with sahded portions
-                    singlePass: true
+                const hints = new Map();
+                const formats = [BarcodeFormat.QR_CODE, BarcodeFormat.DATA_MATRIX];
+
+                hints.set(DecodeHintType.POSSIBLE_FORMATS, formats);
+                hints.set(DecodeHintType.TRY_HARDER, true);
+
+                const reader = new MultiFormatReader();
+
+                reader.setHints(hints);
+
+                const len = rawImageData.width * rawImageData.height;
+
+                const luminancesUint8Array = new Uint8Array(len);
+
+                for (let i = 0; i < len; i++) {
+                    luminancesUint8Array[i] = ((rawImageData.data[i * 4] + rawImageData.data[i * 4 + 1] * 2 + rawImageData.data[i * 4 + 2]) / 4) & 0xFF;
                 }
-            })
-                .then(code => {
-                    console.log(code);
-                    const imgDetails = [
-                        {
-                            object: resultNew?.localizedObjectAnnotations[0]?.name,
-                            text: (resultNew?.fullTextAnnotation?.text)?.replace("\n", " "),
-                            brand: resultNew?.logoAnnotations[0]?.description,
-                            landName: resultNew?.landmarkAnnotations[0]?.description,
-                            barcode: code
-                        }
-                    ]
-                    console.log(imgDetails);
-                    res.send(imgDetails);
 
-                })
-                .catch(err => {
-                    console.log(err);
-                    const imgDetails = [
-                        {
-                            object: resultNew?.localizedObjectAnnotations[0]?.name,
-                            text: (resultNew?.fullTextAnnotation?.text)?.replace("\n", " "),
-                            brand: resultNew?.logoAnnotations[0]?.description,
-                            landName: resultNew?.landmarkAnnotations[0]?.description,
-                            barcode: 'unstable/blurry, cant read'
-                        }
-                    ]
-                    console.log(imgDetails);
-                    res.send(imgDetails);
-                })
+                const luminanceSource = new RGBLuminanceSource(luminancesUint8Array, rawImageData.width, rawImageData.height);
+
+                // console.log(luminanceSource);
+
+                const binaryBitmap = new BinaryBitmap(new HybridBinarizer(luminanceSource));
+
+                const decoded = reader.decode(binaryBitmap);
+
+                console.log(decoded.text);
+
+                const imgDetails = [
+                    {
+                        object: resultNew?.localizedObjectAnnotations[0]?.name,
+                        text: (resultNew?.fullTextAnnotation?.text)?.replace("\n", " "),
+                        brand: resultNew?.logoAnnotations[0]?.description,
+                        landName: resultNew?.landmarkAnnotations[0]?.description,
+                        barcode: decoded.text
+                    }
+                ]
+                console.log(imgDetails);
+                res.send(imgDetails);
+
+            }
+            catch (e) {
+                const imgDetails = [
+                    {
+                        object: resultNew?.localizedObjectAnnotations[0]?.name,
+                        text: (resultNew?.fullTextAnnotation?.text)?.replace("\n", " "),
+                        brand: resultNew?.logoAnnotations[0]?.description,
+                        landName: resultNew?.landmarkAnnotations[0]?.description,
+                        barcode: 'unstable/blurry/or invalid format, cant read'
+                    }
+                ]
+                console.log(imgDetails);
+                res.send(imgDetails);
+            }
+
+            //another library for bar code reader named javascriptBarcodeReader
+            // const buffer = Buffer.from(path_img, "base64");
+            // fs.writeFileSync("qrtemp.jpg", buffer);
+            // var filePath = 'qrtemp.jpg';
+
+            // javascriptBarcodeReader({
+            //     /* Image file Path || {data: Uint8ClampedArray, width, height} || HTML5 Canvas ImageData */
+            //     image: filePath,
+            //     barcode: 'code-39',
+            //     barcodeType: 'industrial',
+            //     options: {
+            //         useAdaptiveThreshold: true, // for images with sahded portions
+            //         singlePass: true
+            //     }
+            // })
+            //     .then(code => {
+            //         console.log(code);
+            //         const imgDetails = [
+            //             {
+            //                 object: resultNew?.localizedObjectAnnotations[0]?.name,
+            //                 text: (resultNew?.fullTextAnnotation?.text)?.replace("\n", " "),
+            //                 brand: resultNew?.logoAnnotations[0]?.description,
+            //                 landName: resultNew?.landmarkAnnotations[0]?.description,
+            //                 barcode: code
+            //             }
+            //         ]
+            //         console.log(imgDetails);
+            //         res.send(imgDetails);
+
+            //     })
+            //     .catch(err => {
+            //         console.log(err);
+            //         const imgDetails = [
+            //             {
+            //                 object: resultNew?.localizedObjectAnnotations[0]?.name,
+            //                 text: (resultNew?.fullTextAnnotation?.text)?.replace("\n", " "),
+            //                 brand: resultNew?.logoAnnotations[0]?.description,
+            //                 landName: resultNew?.landmarkAnnotations[0]?.description,
+            //                 barcode: 'unstable/blurry, cant read'
+            //             }
+            //         ]
+            //         console.log(imgDetails);
+            //         res.send(imgDetails);
+            //     })
 
             //another library for bar code reader named Quagga
             // Quagga.decodeSingle({
