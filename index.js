@@ -215,7 +215,7 @@ app.post('/vision', (req, res) => {
                         text: (resultNew?.fullTextAnnotation?.text)?.replace("\n", " "),
                         brand: resultNew?.logoAnnotations[0]?.description,
                         landName: resultNew?.landmarkAnnotations[0]?.description,
-                        qrcode: 'unstable/blurry, cant read'
+                        qrcode: error
                     }
                 ]
                 console.log(imgDetails);
@@ -225,9 +225,12 @@ app.post('/vision', (req, res) => {
         }
         //bar reader........................
         else if (resultNew?.localizedObjectAnnotations[0]?.name == '1D barcode') {
+            const buffer = Buffer.from(path_img, "base64");
+            fs.writeFileSync("bartemp.jpg", buffer);
+            var filePath = 'bartemp.jpg';
             // library for bar code reader named ZXING(same code diye qr code o read hoy lol)
             try {
-                const jpegData = fs.readFileSync('qrtemp.jpg');
+                const jpegData = fs.readFileSync('bartemp.jpg');
                 const rawImageData = jpeg.decode(jpegData);
 
                 const hints = new Map();
@@ -271,14 +274,14 @@ app.post('/vision', (req, res) => {
                 res.send(imgDetails);
 
             }
-            catch (e) {
+            catch (err) {
                 const imgDetails = [
                     {
                         object: resultNew?.localizedObjectAnnotations[0]?.name,
                         text: (resultNew?.fullTextAnnotation?.text)?.replace("\n", " "),
                         brand: resultNew?.logoAnnotations[0]?.description,
                         landName: resultNew?.landmarkAnnotations[0]?.description,
-                        barcode: 'unstable/blurry/or invalid format, cant read'
+                        barcode: err
                     }
                 ]
                 console.log(imgDetails);
