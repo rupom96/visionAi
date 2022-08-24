@@ -28,7 +28,6 @@ app.use(express.urlencoded({ limit: '1000mb' }));
 // app.use(express.bodyParser({ limit: '50mb' }));
 // app.use(bodyParser.json({ limit: '100mb' }));
 // app.use(bodyParser.urlencoded({ extended: true, limit: '100mb' }));
-
 const port = process.env.PORT || 6600;
 
 
@@ -181,112 +180,113 @@ app.post('/vision', (req, res) => {
         //qr reader........................
         if (resultNew?.localizedObjectAnnotations[0]?.name == '2D barcode') {
 
-            //Zxing lib for qr code
-            const buffer = Buffer.from(path_img, "base64");
-            fs.writeFileSync("qrtemp.jpg", buffer);
-            var filePath = 'qrtemp.jpg';
-            // // library for bar code reader named ZXING(same code diye qr code o read hoy lol)
-            try {
-                const jpegData = fs.readFileSync('qrtemp.jpg');
-                const rawImageData = jpeg.decode(jpegData);
-
-                const hints = new Map();
-                const formats = [BarcodeFormat.QR_CODE];
-
-                hints.set(DecodeHintType.POSSIBLE_FORMATS, formats);
-                hints.set(DecodeHintType.TRY_HARDER, true);
-
-                const reader = new MultiFormatReader();
-
-                reader.setHints(hints);
-
-                const len = rawImageData.width * rawImageData.height;
-
-                const luminancesUint8Array = new Uint8Array(len);
-
-                for (let i = 0; i < len; i++) {
-                    luminancesUint8Array[i] = ((rawImageData.data[i * 4] + rawImageData.data[i * 4 + 1] * 2 + rawImageData.data[i * 4 + 2]) / 4) & 0xFF;
-                }
-
-                const luminanceSource = new RGBLuminanceSource(luminancesUint8Array, rawImageData.width, rawImageData.height);
-
-                // console.log(luminanceSource);
-
-                const binaryBitmap = new BinaryBitmap(new HybridBinarizer(luminanceSource));
-
-                const decoded = reader.decode(binaryBitmap);
-
-                console.log(decoded.text);
-
-                const imgDetails = [
-                    {
-                        object: resultNew?.localizedObjectAnnotations[0]?.name,
-                        text: (resultNew?.fullTextAnnotation?.text)?.replace("\n", " "),
-                        brand: resultNew?.logoAnnotations[0]?.description,
-                        landName: resultNew?.landmarkAnnotations[0]?.description,
-                        qrcode: decoded.text
-                    }
-                ]
-                console.log(imgDetails);
-                res.send(imgDetails);
-
-            }
-            catch (err) {
-                const imgDetails = [
-                    {
-                        object: resultNew?.localizedObjectAnnotations[0]?.name,
-                        text: (resultNew?.fullTextAnnotation?.text)?.replace("\n", " "),
-                        brand: resultNew?.logoAnnotations[0]?.description,
-                        landName: resultNew?.landmarkAnnotations[0]?.description,
-                        qrcode: err
-                    }
-                ]
-                console.log(imgDetails);
-                res.send(imgDetails);
-            }
-
-            //jimp lib for qr code
-
+            // //Zxing lib for qr code
             // const buffer = Buffer.from(path_img, "base64");
             // fs.writeFileSync("qrtemp.jpg", buffer);
             // var filePath = 'qrtemp.jpg';
+
+            // // // library for bar code reader named ZXING(same code diye qr code o read hoy lol)
             // try {
-            //     const img = await Jimp.read(fs.readFileSync(filePath));
-            //     // console.log("see here rupom, oder buffer")
-            //     // console.log(img);
-            //     const qr = new qrCode();
-            //     const value = await new Promise((resolve, reject) => {
-            //         qr.callback = (err, v) => err != null ? reject(err) : resolve(v);
-            //         qr.decode(img.bitmap);
-            //     });
-            //     // return value.result;
-            //     // resQr = value.result;
+            //     const jpegData = fs.readFileSync('qrtemp.jpg');
+            //     const rawImageData = jpeg.decode(jpegData);
+
+            //     const hints = new Map();
+            //     const formats = [BarcodeFormat.QR_CODE];
+
+            //     hints.set(DecodeHintType.POSSIBLE_FORMATS, formats);
+            //     hints.set(DecodeHintType.TRY_HARDER, true);
+
+            //     const reader = new MultiFormatReader();
+
+            //     reader.setHints(hints);
+
+            //     const len = rawImageData.width * rawImageData.height;
+
+            //     const luminancesUint8Array = new Uint8Array(len);
+
+            //     for (let i = 0; i < len; i++) {
+            //         luminancesUint8Array[i] = ((rawImageData.data[i * 4] + rawImageData.data[i * 4 + 1] * 2 + rawImageData.data[i * 4 + 2]) / 4) & 0xFF;
+            //     }
+
+            //     const luminanceSource = new RGBLuminanceSource(luminancesUint8Array, rawImageData.width, rawImageData.height);
+
+            //     // console.log(luminanceSource);
+
+            //     const binaryBitmap = new BinaryBitmap(new HybridBinarizer(luminanceSource));
+
+            //     const decoded = reader.decode(binaryBitmap);
+
+            //     console.log(decoded.text);
+
             //     const imgDetails = [
             //         {
             //             object: resultNew?.localizedObjectAnnotations[0]?.name,
             //             text: (resultNew?.fullTextAnnotation?.text)?.replace("\n", " "),
             //             brand: resultNew?.logoAnnotations[0]?.description,
             //             landName: resultNew?.landmarkAnnotations[0]?.description,
-            //             qrcode: value.result
+            //             qrcode: decoded.text
             //         }
             //     ]
             //     console.log(imgDetails);
             //     res.send(imgDetails);
 
             // }
-            // catch (error) {
+            // catch (err) {
             //     const imgDetails = [
             //         {
             //             object: resultNew?.localizedObjectAnnotations[0]?.name,
             //             text: (resultNew?.fullTextAnnotation?.text)?.replace("\n", " "),
             //             brand: resultNew?.logoAnnotations[0]?.description,
             //             landName: resultNew?.landmarkAnnotations[0]?.description,
-            //             qrcode: error
+            //             qrcode: err
             //         }
             //     ]
             //     console.log(imgDetails);
             //     res.send(imgDetails);
             // }
+
+            // jimp lib for qr code
+
+            const buffer = Buffer.from(path_img, "base64");
+            fs.writeFileSync("qrtemp.jpg", buffer);
+            var filePath = 'qrtemp.jpg';
+            try {
+                const img = await Jimp.read(fs.readFileSync(filePath));
+                // console.log("see here rupom, oder buffer")
+                // console.log(img);
+                const qr = new qrCode();
+                const value = await new Promise((resolve, reject) => {
+                    qr.callback = (err, v) => err != null ? reject(err) : resolve(v);
+                    qr.decode(img.bitmap);
+                });
+                // return value.result;
+                // resQr = value.result;
+                const imgDetails = [
+                    {
+                        object: resultNew?.localizedObjectAnnotations[0]?.name,
+                        text: (resultNew?.fullTextAnnotation?.text)?.replace("\n", " "),
+                        brand: resultNew?.logoAnnotations[0]?.description,
+                        landName: resultNew?.landmarkAnnotations[0]?.description,
+                        qrcode: value.result
+                    }
+                ]
+                console.log(imgDetails);
+                res.send(imgDetails);
+
+            }
+            catch (error) {
+                const imgDetails = [
+                    {
+                        object: resultNew?.localizedObjectAnnotations[0]?.name,
+                        text: (resultNew?.fullTextAnnotation?.text)?.replace("\n", " "),
+                        brand: resultNew?.logoAnnotations[0]?.description,
+                        landName: resultNew?.landmarkAnnotations[0]?.description,
+                        qrcode: error
+                    }
+                ]
+                console.log(imgDetails);
+                res.send(imgDetails);
+            }
 
         }
         //bar reader........................
