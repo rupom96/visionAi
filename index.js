@@ -281,7 +281,7 @@ app.post('/vision', (req, res) => {
                         // text: (resultNew?.fullTextAnnotation?.text)?.replace("\n", " "),
                         brand: resultNew?.logoAnnotations[0]?.description,
                         landName: resultNew?.landmarkAnnotations[0]?.description,
-                        qrcode: error
+                        qrcode: 'unstable/blurry/invalid QR, cant read'
                     }
                 ]
                 console.log(imgDetails);
@@ -347,7 +347,7 @@ app.post('/vision', (req, res) => {
                         // text: (resultNew?.fullTextAnnotation?.text)?.replace("\n", " "),
                         brand: resultNew?.logoAnnotations[0]?.description,
                         landName: resultNew?.landmarkAnnotations[0]?.description,
-                        barcode: err
+                        barcode: 'unstable/blurry/invalid Bar, cant read'
                     }
                 ]
                 console.log(imgDetails);
