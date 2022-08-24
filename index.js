@@ -264,7 +264,7 @@ app.post('/vision', (req, res) => {
                 const imgDetails = [
                     {
                         object: resultNew?.localizedObjectAnnotations[0]?.name,
-                        text: (resultNew?.fullTextAnnotation?.text)?.replace("\n", " "),
+                        // text: (resultNew?.fullTextAnnotation?.text)?.replace("\n", " "),
                         brand: resultNew?.logoAnnotations[0]?.description,
                         landName: resultNew?.landmarkAnnotations[0]?.description,
                         qrcode: value.result
@@ -278,7 +278,7 @@ app.post('/vision', (req, res) => {
                 const imgDetails = [
                     {
                         object: resultNew?.localizedObjectAnnotations[0]?.name,
-                        text: (resultNew?.fullTextAnnotation?.text)?.replace("\n", " "),
+                        // text: (resultNew?.fullTextAnnotation?.text)?.replace("\n", " "),
                         brand: resultNew?.logoAnnotations[0]?.description,
                         landName: resultNew?.landmarkAnnotations[0]?.description,
                         qrcode: error
@@ -330,7 +330,7 @@ app.post('/vision', (req, res) => {
                 const imgDetails = [
                     {
                         object: resultNew?.localizedObjectAnnotations[0]?.name,
-                        text: (resultNew?.fullTextAnnotation?.text)?.replace("\n", " "),
+                        // text: (resultNew?.fullTextAnnotation?.text)?.replace("\n", " "),
                         brand: resultNew?.logoAnnotations[0]?.description,
                         landName: resultNew?.landmarkAnnotations[0]?.description,
                         barcode: decoded.text
@@ -344,7 +344,7 @@ app.post('/vision', (req, res) => {
                 const imgDetails = [
                     {
                         object: resultNew?.localizedObjectAnnotations[0]?.name,
-                        text: (resultNew?.fullTextAnnotation?.text)?.replace("\n", " "),
+                        // text: (resultNew?.fullTextAnnotation?.text)?.replace("\n", " "),
                         brand: resultNew?.logoAnnotations[0]?.description,
                         landName: resultNew?.landmarkAnnotations[0]?.description,
                         barcode: err
