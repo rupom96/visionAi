@@ -181,7 +181,7 @@ app.post('/vision', (req, res) => {
         //qr reader........................
         if (resultNew?.localizedObjectAnnotations[0]?.name == '2D barcode') {
 
-
+            //Zxing lib for qr code
             const buffer = Buffer.from(path_img, "base64");
             fs.writeFileSync("qrtemp", buffer);
             var filePath = 'qrtemp';
@@ -245,6 +245,8 @@ app.post('/vision', (req, res) => {
                 res.send(imgDetails);
             }
 
+            //jimp lib for qr code
+
             // const buffer = Buffer.from(path_img, "base64");
             // fs.writeFileSync("qrtemp.jpg", buffer);
             // var filePath = 'qrtemp.jpg';
@@ -298,7 +300,7 @@ app.post('/vision', (req, res) => {
                 const rawImageData = jpeg.decode(jpegData);
 
                 const hints = new Map();
-                const formats = [BarcodeFormat.QR_CODE, BarcodeFormat.DATA_MATRIX];
+                const formats = [BarcodeFormat.DATA_MATRIX];
 
                 hints.set(DecodeHintType.POSSIBLE_FORMATS, formats);
                 hints.set(DecodeHintType.TRY_HARDER, true);
