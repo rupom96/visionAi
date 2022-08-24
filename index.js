@@ -183,8 +183,8 @@ app.post('/vision', (req, res) => {
 
             //Zxing lib for qr code
             const buffer = Buffer.from(path_img, "base64");
-            fs.writeFileSync("qrtemp", buffer);
-            var filePath = 'qrtemp';
+            fs.writeFileSync("qrtemp.jpg", buffer);
+            var filePath = 'qrtemp.jpg';
             // // library for bar code reader named ZXING(same code diye qr code o read hoy lol)
             try {
                 const jpegData = fs.readFileSync('qrtemp.jpg');
